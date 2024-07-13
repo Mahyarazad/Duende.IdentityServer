@@ -1,4 +1,6 @@
-﻿using Marvin.IDP;
+﻿using IdentityServer.DbContexts;
+using Marvin.IDP;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -21,6 +23,10 @@ try
         .ConfigurePipeline();
     
     app.Run();
+}
+catch(HostAbortedException)
+{
+    // eat exception, cfr https://github.com/dotnet/efcore/issues/29809 
 }
 catch (Exception ex)
 {
