@@ -2,6 +2,7 @@ using ImageGallery.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.Net.Http.Headers;
 using Serilog;
@@ -27,13 +28,19 @@ builder.Services.AddAccessTokenManagement();
 
 JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
+var configuration = builder.Configuration;
+
 // create an HttpClient used for accessing the API
 builder.Services.AddHttpClient("APIClient", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ImageGalleryAPIRoot"]);
+    client.BaseAddress = new Uri(configuration["ImageGalleryAPIRoot"]!);
     client.DefaultRequestHeaders.Clear();
     client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
 }).AddUserAccessTokenHandler();
+
+builder.Services.AddHttpClient("IDP", client => {
+    client.BaseAddress = new Uri(configuration["IDP"]!);
+});
 
 builder.Services.AddAuthentication(options =>
 {

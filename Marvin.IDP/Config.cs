@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using IdentityModel;
 
 namespace Marvin.IDP;
 
@@ -27,7 +28,8 @@ public static class Config
             {
                 "role", "country"
             },
-            Scopes = { "imagegalleryapi.read", "imagegalleryapi.write", "imagegalleryapi.fullaccess" }
+            Scopes = { "imagegalleryapi.read", "imagegalleryapi.write", "imagegalleryapi.fullaccess" },
+            ApiSecrets = { new Secret("apisecret".ToSha256())}
         }
     };
 
@@ -49,6 +51,7 @@ public static class Config
                     AllowedGrantTypes = GrantTypes.Code,
                     AllowOfflineAccess = true,
                     UpdateAccessTokenClaimsOnRefresh = true,
+                    AccessTokenType = AccessTokenType.Reference,
                     AccessTokenLifetime = 120,
                     RedirectUris =
                     {

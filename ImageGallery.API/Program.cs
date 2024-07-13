@@ -30,19 +30,29 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 
-JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.Authority = "https://localhost:5001";
-    options.Audience = "imagegalleryapi";
-    options.TokenValidationParameters = new()
-    {
-        NameClaimType = "given_name",
-        RoleClaimType = "role",
-        ValidTypes = new[] { "at+jwt" }
-    }; 
+JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer();
+    //.AddJwtBearer(options =>
+    //{
+    //    options.Authority = "https://localhost:5001";
+    //    options.Audience = "imagegalleryapi";
+    //    options.TokenValidationParameters = new()
+    //    {
+    //        NameClaimType = "given_name",
+    //        RoleClaimType = "role",
+    //        ValidTypes = new[] { "at+jwt" }
+    //    };
 
-});
+    //});
+    //.AddOAuth2Introspection(options => 
+    //{
+    //    options.Authority = "https://localhost:5001";
+    //    options.ClientId = "imagegalleryapi";
+    //    options.ClientSecret = "apisecret";
+    //    options.NameClaimType = "given_name";
+    //    options.RoleClaimType = "role";
+    //});
 
 builder.Services.AddAuthorization(options =>
 {
