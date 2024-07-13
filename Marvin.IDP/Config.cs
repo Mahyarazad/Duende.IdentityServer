@@ -47,6 +47,9 @@ public static class Config
                     ClientName = "Image Gallery",
                     ClientId = "imagegalleryclient",
                     AllowedGrantTypes = GrantTypes.Code,
+                    AllowOfflineAccess = true,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    AccessTokenLifetime = 120,
                     RedirectUris =
                     {
                         "https://localhost:7184/signin-oidc"
@@ -59,6 +62,7 @@ public static class Config
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
                         "roles", "imagegalleryapi.read", "imagegalleryapi.write", "country"
                     },
                     ClientSecrets =
