@@ -1,4 +1,6 @@
 using IdentityServer.DbContexts;
+using IdentityServer.Services;
+using Marvin.IDP.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -16,16 +18,18 @@ internal static class HostingExtensions
             options.UseSqlite(builder.Configuration.GetConnectionString("IdentityDbContext"));
         });
 
+        builder.Services.AddScoped<IDbUserService, DbUserService>();
+
         builder.Services.AddIdentityServer(options =>
         {
             // https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/api_scopes#authorization-based-on-scopes
             options.EmitStaticAudienceClaim = true;
         })
+            .AddProfileService<LocalUserProfileService>()
             .AddInMemoryIdentityResources(Config.IdentityResources)
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryApiResources(Config.ApiResources)
-            .AddInMemoryClients(Config.Clients)
-            .AddTestUsers(TestUsers.Users);
+            .AddInMemoryClients(Config.Clients);
 
         return builder.Build();
     }

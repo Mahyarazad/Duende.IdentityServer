@@ -32,7 +32,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer();
+    // for Postman test
+    //.AddJwtBearer();
+
+    //
     //.AddJwtBearer(options =>
     //{
     //    options.Authority = "https://localhost:5001";
@@ -43,16 +46,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     //        RoleClaimType = "role",
     //        ValidTypes = new[] { "at+jwt" }
     //    };
+    //});
+    //
 
-    //});
-    //.AddOAuth2Introspection(options => 
-    //{
-    //    options.Authority = "https://localhost:5001";
-    //    options.ClientId = "imagegalleryapi";
-    //    options.ClientSecret = "apisecret";
-    //    options.NameClaimType = "given_name";
-    //    options.RoleClaimType = "role";
-    //});
+    //AccessTokenType = AccessTokenType.Reference
+    //using Reference accesstoken 
+    // this middleware supports reference access tokens, also the should be another ApiSecret inside the resources
+    .AddOAuth2Introspection(options =>
+    {
+        options.Authority = "https://localhost:5001";
+        options.ClientId = "imagegalleryapi";
+        options.ClientSecret = "apisecret";
+        options.NameClaimType = "given_name";
+        options.RoleClaimType = "role";
+    });
 
 builder.Services.AddAuthorization(options =>
 {
