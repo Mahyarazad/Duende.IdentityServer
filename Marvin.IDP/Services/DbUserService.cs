@@ -2,6 +2,7 @@
 using IdentityServer.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace IdentityServer.Services
 {
@@ -20,6 +21,7 @@ namespace IdentityServer.Services
         Task<bool> IsUserActive(string subject);
 
         Task<bool> SaveChangesAsync();
+        Task<bool> ActivateUserAsync(string securityCode);
     }
     public class DbUserService : IDbUserService
     {
@@ -120,6 +122,13 @@ namespace IdentityServer.Services
                 throw new Exception("Username must be unique");
             }
 
+            if (_context.Users.Any(u => u.Email == userToAdd.Email))
+            {
+                throw new Exception("Email must be unique");
+            }
+
+            userToAdd.SecurityCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(128));
+            userToAdd.SecurityExpirationDate = DateTime.UtcNow.AddHours(1);
             userToAdd.Password = _passwordHasher.HashPassword(userToAdd, password);
             _context.Users.Add(userToAdd);
         }
@@ -128,6 +137,24 @@ namespace IdentityServer.Services
         public async Task<bool> SaveChangesAsync()
         {
             return (await _context.SaveChangesAsync() > 0);
+        }
+
+        public async Task<bool> ActivateUserAsync(string securityCode)
+        {
+            if (string.IsNullOrWhiteSpace(securityCode))
+            {
+                throw new ArgumentNullException(nameof(securityCode));
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.SecurityCode == securityCode && x.SecurityExpirationDate >= DateTime.UtcNow);
+
+            if(user == null) { return false; }
+
+            user.Active = true;
+            user.SecurityCode = null;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

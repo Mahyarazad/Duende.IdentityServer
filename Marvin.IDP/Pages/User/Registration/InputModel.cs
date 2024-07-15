@@ -20,6 +20,9 @@ namespace IdentityServer.Pages.User.Registration
         [MaxLength(200)]
         [Display(Name = "Family Name")]
         public string? FamilyName { get; set; }
+        [Required]
+        [MaxLength(200)]
+        [EmailAddress]
         public string? Email { get; set; }
         [Required]
         [MaxLength(2)]

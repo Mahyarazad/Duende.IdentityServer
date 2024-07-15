@@ -18,5 +18,13 @@ namespace IdentityServer.Entities
         [ConcurrencyCheck]
         public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
         public ICollection<UserClaim> UserClaims { get; set; } = new List<UserClaim>();
+
+        [MaxLength(200)]
+        public string? SecurityCode { get; set; }
+        [MaxLength(200)]
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        public DateTime SecurityExpirationDate { get; set; }
     }
 }

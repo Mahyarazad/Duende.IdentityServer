@@ -6,7 +6,6 @@ using Marvin.IDP.Pages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace IdentityServer.Pages.User.Registration
 {
@@ -49,8 +48,9 @@ namespace IdentityServer.Pages.User.Registration
 
             var userToCreate = new Entities.User
             {
-                Active = true,
+                Active = false,
                 UserName = Input.Username,
+                Email = Input.Email,
                 Subject = Guid.NewGuid().ToString(),
             };
 
@@ -75,18 +75,23 @@ namespace IdentityServer.Pages.User.Registration
             _dbUserService.AddUser(userToCreate, Input.Password);
             await _dbUserService.SaveChangesAsync();
 
+            var activationLink = Url.PageLink("/user/activation/index", values: new { securityCode = userToCreate.SecurityCode });
+            Console.WriteLine(activationLink);
+            return Redirect("~/User/ActivationCodeSent");
+
+
             //Issue auth cookie to login
-            var user = new IdentityServerUser(userToCreate.Subject)
-            {
-                DisplayName = Input.Username,
-            };
+            //var user = new IdentityServerUser(userToCreate.Subject)
+            //{
+            //    DisplayName = Input.Username,
+            //};
 
-            await HttpContext.SignInAsync(user);
+            ////await HttpContext.SignInAsync(user);
 
-            if(_interactionService.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl))
-            {
-                return Redirect(Input.ReturnUrl);
-            }
+            //if(_interactionService.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl))
+            //{
+            //    return Redirect(Input.ReturnUrl);
+            //}
 
             return Redirect("~/");
         }
