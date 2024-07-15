@@ -1,6 +1,8 @@
 using IdentityServer.DbContexts;
+using IdentityServer.Entities;
 using IdentityServer.Services;
 using Marvin.IDP.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -18,6 +20,7 @@ internal static class HostingExtensions
             options.UseSqlite(builder.Configuration.GetConnectionString("IdentityDbContext"));
         });
 
+        builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         builder.Services.AddScoped<IDbUserService, DbUserService>();
 
         builder.Services.AddIdentityServer(options =>
