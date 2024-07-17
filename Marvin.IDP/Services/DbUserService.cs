@@ -9,19 +9,14 @@ namespace IdentityServer.Services
     public interface IDbUserService
     {
         Task<bool> ValidateCredentialsAsync(string userName,string password);
-
         Task<IEnumerable<UserClaim>> GetUserClaimsBySubjectAsync(string subject);
-
         Task<User?> GetUserByUserNameAsync(string userName);
-
         Task<User?> GetUserBySubjectAsync(string subject);
-
         void AddUser(User userToAdd, string password);
-
         Task<bool> IsUserActive(string subject);
-
         Task<bool> SaveChangesAsync();
         Task<bool> ActivateUserAsync(string securityCode);
+        Task<bool> AddUserSecret(string subject, string name, string secret);
     }
     public class DbUserService : IDbUserService
     {
@@ -155,6 +150,28 @@ namespace IdentityServer.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> AddUserSecret(string subject, string name, string secret)
+        {
+            if(string.IsNullOrWhiteSpace(subject)) { throw new ArgumentNullException(nameof(subject)); }
+            if(string.IsNullOrWhiteSpace(name)) { throw new ArgumentNullException(nameof(name)); }
+            if(string.IsNullOrWhiteSpace(secret)) { throw new ArgumentNullException(nameof(secret)); }
+
+            var user = await GetUserBySubjectAsync(subject);
+            if(user == null)
+            {
+                return false;
+            }
+            else
+            {
+                user.UserSecrets.Add(new UserSecret()
+                {
+                    Name = name,
+                    Secret = secret
+                });
+                return true;
+            }
         }
     }
 }
