@@ -11,6 +11,7 @@ namespace IdentityServer.Services
         Task<bool> ValidateCredentialsAsync(string userName,string password);
         Task<IEnumerable<UserClaim>> GetUserClaimsBySubjectAsync(string subject);
         Task<User?> GetUserByUserNameAsync(string userName);
+        Task<UserSecret?> GetUserSecretAsync(string subject, string name);
         Task<User?> GetUserBySubjectAsync(string subject);
         void AddUser(User userToAdd, string password);
         Task<bool> IsUserActive(string subject);
@@ -172,6 +173,13 @@ namespace IdentityServer.Services
                 });
                 return true;
             }
+        }
+
+        public async Task<UserSecret?> GetUserSecretAsync(string subject, string name)
+        {
+            if (string.IsNullOrWhiteSpace(subject)) { throw new ArgumentNullException(nameof(subject)); }
+            if (string.IsNullOrWhiteSpace(name)) { throw new ArgumentNullException(nameof(name)); }
+            return await _context.UserSecrets.FirstOrDefaultAsync(x => x.Name == name && x.User.Subject == subject);
         }
     }
 }

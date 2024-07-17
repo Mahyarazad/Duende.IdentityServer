@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
+using TwoFactorAuthNet;
 
 namespace IdentityServer.Pages.User.MfaRegistration
 {
@@ -27,19 +25,11 @@ namespace IdentityServer.Pages.User.MfaRegistration
 
         public async Task OnGet()
         {
-            var result = new StringBuilder(16);
-
-            for (var i = 0; i < 16; i++)
-            {
-                var rnd = new Random();
-                result.Append(chars[rnd.Next(0, chars.Length)]);
-            }
-
-            var secret = result.ToString();
+            var secret = TwoStepsAuthenticator.Authenticator.GenerateKey();
             var subject = User.FindFirst(JwtClaimTypes.Subject)!.Value;
             var user = await _dbUserService.GetUserBySubjectAsync(subject);
 
-            var keyUri = string.Format("otpauth://topt/{0}:{1}?secret{2}&issuer={0}"
+            var keyUri = string.Format("otpauth://totp/{0}:{1}?secret={2}&issuer={0}&algorithm=SHA1&digits=16"
                 , WebUtility.UrlEncode("IdentityServer"), WebUtility.UrlEncode(user!.Email), secret);
 
             View = new() { KeyUri = keyUri };   

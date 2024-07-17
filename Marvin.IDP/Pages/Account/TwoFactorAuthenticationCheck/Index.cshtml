@@ -1,0 +1,40 @@
+﻿@page
+@model IdentityServer.Pages.Account.TwoFactorAuthenticationCheck.IndexModel
+
+
+<div class="login-page">
+    <div class="lead">
+        <h1>Two Facto rAuthentication Check</h1>
+    </div>
+
+    <partial name="_ValidationSummary" />
+
+    <div class="row">
+
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Please Enter the Authenticator Code</h2>
+                </div>
+
+                <div class="card-body">
+                    <form asp-page="/Account/TwoFactorAuthenticationCheck/Index">
+                        <input type="hidden" asp-for="Input.ReturnUrl" />
+
+                        <div class="form-group">
+                            <label asp-for="Input.Code"></label>
+                            <input type="password" class="form-control" placeholder="" asp-for="Input.Code" autocomplete="off">
+                        </div>
+
+
+                        <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
+                        <a class="btn btn-secondary" href="~/Account/Login/Index">Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+@{
+}
