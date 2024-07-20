@@ -12,20 +12,20 @@ namespace IdentityServer.Entities
         [Required]
         public bool Active { get; set; }
         [MaxLength(200)]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         [MaxLength(200)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
         [ConcurrencyCheck]
         public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
         public ICollection<UserClaim> UserClaims { get; set; } = new List<UserClaim>();
         public ICollection<UserSecret> UserSecrets { get; set; } = new List<UserSecret>();
+        public ICollection<UserLogin> UserLogins { get; set; } = new List<UserLogin>();
 
         [MaxLength(200)]
         public string? SecurityCode { get; set; }
         [MaxLength(200)]
-        [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public DateTime SecurityExpirationDate { get; set; }
     }
 }
