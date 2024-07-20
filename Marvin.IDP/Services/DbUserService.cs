@@ -2,7 +2,9 @@
 using IdentityServer.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace IdentityServer.Services
 {
@@ -18,6 +20,8 @@ namespace IdentityServer.Services
         Task<bool> SaveChangesAsync();
         Task<bool> ActivateUserAsync(string securityCode);
         Task<bool> AddUserSecret(string subject, string name, string secret);
+        Task<User?> FindUserByExternalProvider(string providerName, string providerIdentityKey);
+        Task<User> AddProvisionUser(string providerName, string providerIdentityKey, IEnumerable<Claim> claims);
     }
     public class DbUserService : IDbUserService
     {
@@ -37,13 +41,25 @@ namespace IdentityServer.Services
             }
 
             var user = await GetUserBySubjectAsync(subject);
+            var externalUser = await IsThereAnyExternalUser(subject);
+
+            if(externalUser)
+            {
+                return true;
+            }
 
             if (user == null)
             {
                 return false;
             }
 
+
             return user.Active;
+        }
+
+        private async Task<bool> IsThereAnyExternalUser(string subject)
+        {
+            return await _context.UserLogins.FirstOrDefaultAsync(x=>x.ProviderIdentityKey == subject) != null;
         }
 
         public async Task<bool> ValidateCredentialsAsync(string userName,
@@ -180,6 +196,45 @@ namespace IdentityServer.Services
             if (string.IsNullOrWhiteSpace(subject)) { throw new ArgumentNullException(nameof(subject)); }
             if (string.IsNullOrWhiteSpace(name)) { throw new ArgumentNullException(nameof(name)); }
             return await _context.UserSecrets.FirstOrDefaultAsync(x => x.Name == name && x.User.Subject == subject);
+        }
+
+        public async Task<User?> FindUserByExternalProvider(string providerName, string providerIdentityKey)
+        {
+            if (string.IsNullOrWhiteSpace(providerName)) { throw new ArgumentNullException(nameof(providerName)); }
+            if (string.IsNullOrWhiteSpace(providerIdentityKey)) { throw new ArgumentNullException(nameof(providerIdentityKey)); }
+
+            var loginUser =  await _context.UserLogins.Include(u => u.User)
+                .FirstOrDefaultAsync(x => x.Provider == providerName && x.ProviderIdentityKey == providerIdentityKey);
+
+            return loginUser?.User;
+
+        }
+
+        public async Task<User> AddProvisionUser(string providerName, string providerIdentityKey, IEnumerable<Claim> claims)
+        {
+            if (string.IsNullOrWhiteSpace(providerName)) { throw new ArgumentNullException(nameof(providerName)); }
+            if (string.IsNullOrWhiteSpace(providerIdentityKey)) { throw new ArgumentNullException(nameof(providerIdentityKey)); }
+            if (claims == null) { throw new ArgumentNullException(nameof(claims)); }
+
+            var user = new User
+            {
+                Active = true,
+                Subject = Guid.NewGuid().ToString(),
+            };
+
+            foreach(var claim in claims)
+            {
+                user.UserClaims.Add(new UserClaim()
+                {
+                    Value = claim.Value,
+                    Type = claim.Type,
+                });
+            }
+
+            user.UserLogins.Add(new UserLogin() { Provider = providerName, ProviderIdentityKey = providerIdentityKey });
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user;
         }
     }
 }

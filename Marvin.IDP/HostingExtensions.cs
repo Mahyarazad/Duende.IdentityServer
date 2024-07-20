@@ -1,3 +1,4 @@
+using Duende.IdentityServer;
 using IdentityServer.DbContexts;
 using IdentityServer.Entities;
 using IdentityServer.Services;
@@ -13,6 +14,21 @@ internal static class HostingExtensions
     public static WebApplication ConfigureServices(
         this WebApplicationBuilder builder)
     {
+        // out of process
+        builder.Services.Configure<IISOptions>(iis =>
+        {
+            iis.AuthenticationDisplayName = "Windows";
+            iis.AutomaticAuthentication = false;
+        });
+
+        //in process
+        builder.Services.Configure<IISServerOptions>(iis =>
+        {
+            iis.AuthenticationDisplayName = "Windows";
+            //disable IIS integration layer configuring a windows authenrication handler that can be invoked via an authetication service
+            iis.AutomaticAuthentication = false;
+        });
+
         // uncomment if you want to add a UI
         builder.Services.AddRazorPages();
         builder.Services.AddDbContext<IdentityDbContext>(options =>
@@ -33,6 +49,12 @@ internal static class HostingExtensions
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryApiResources(Config.ApiResources)
             .AddInMemoryClients(Config.Clients);
+
+        builder.Services.AddAuthentication().AddGoogle(options => {
+            options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+            options.ClientId = "**";
+            options.ClientSecret = "**";
+        });
 
         return builder.Build();
     }

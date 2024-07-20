@@ -6,6 +6,7 @@ namespace IdentityServer.Services
 
     public class MfaCodeGenerator
     {
+        [Obsolete]
         public static string GenerateBase32Secret(int length = 16)
         {
             // Generate a random byte array

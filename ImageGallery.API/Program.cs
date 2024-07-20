@@ -54,7 +54,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     // this middleware supports reference access tokens, also the should be another ApiSecret inside the resources
     .AddOAuth2Introspection(options =>
     {
-        options.Authority = "https://localhost:5001";
+        options.Authority = "https://localhost:44395";
         options.ClientId = "imagegalleryapi";
         options.ClientSecret = "apisecret";
         options.NameClaimType = "given_name";
