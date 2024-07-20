@@ -77,7 +77,7 @@ namespace IdentityServer.Pages.User.Registration
 
             var activationLink = Url.PageLink("/user/activation/index", values: new { securityCode = userToCreate.SecurityCode });
             Console.WriteLine(activationLink);
-            return Redirect("~/User/ActivationCodeSent");
+            return LocalRedirect("~/User/ActivationCodeSent");
 
 
             //Issue auth cookie to login
@@ -93,7 +93,7 @@ namespace IdentityServer.Pages.User.Registration
             //    return Redirect(Input.ReturnUrl);
             //}
 
-            return Redirect("~/");
+            //return Redirect("~/");
         }
     }
 }
